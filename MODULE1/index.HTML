@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Paint App</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <h2>Simple Paint App</h2>
+    <canvas id="canvas" width="800" height="500"></canvas>
+    <br>
+    <button id="resetButton">Reset</button>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+
+        function getRandomColor() {
+            return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+        }
+
+        let circles = [];
+
+        canvas.addEventListener("mousedown", (e) => {
+            isDrawing = true;
+            startX = e.offsetX;
+            startY = e.offsetY;
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (!isDrawing) return;
+
+            const currentX = e.offsetX;
+            const currentY = e.offsetY;
+
+            const radius = Math.sqrt((currentX - startX) ** 2 + (currentY - startY) ** 2);
+
+            // Store the current canvas data
+            const tempCircles = [...circles];
+
+            // Add the current circle to the temporary data
+            tempCircles.push({
+                x: startX,
+                y: startY,
+                radius: radius,
+                color: getRandomColor()
+            });
+
+            // Clear the canvas and redraw all circles (including the current one)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const circle of tempCircles) {
+                ctx.beginPath();
+                ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+                ctx.fillStyle = circle.color;
+                ctx.fill();
+            }
+        });
+
+        canvas.addEventListener("mouseup", (e) => {
+            if (isDrawing) {
+                const currentX = e.offsetX;
+                const currentY = e.offsetY;
+                const radius = Math.sqrt((currentX - startX) ** 2 + (currentY - startY) ** 2);
+                
+                // Store the completed circle to retain it
+                circles.push({
+                    x: startX,
+                    y: startY,
+                    radius: radius,
+                    color: getRandomColor()
+                });
+            }
+            isDrawing = false;
+        });
+
+        document.getElementById("resetButton").addEventListener("click", () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            circles = [];  // Clear all stored circles
+        });
+    </script>
+</body>
+</html>
